@@ -148,9 +148,9 @@ class DsVent(FanEntity):
     @property
     def device_info(self) -> Optional[DeviceInfo]:
         return {
-            "identifiers": {(DOMAIN, self.unique_id)},
+            "identifiers": {(DOMAIN, self._unique_id)},
             "name": "新风%s" % self._name,
-            "manufacturer": "DAIKIN INDUSTRIES, Ltd."
+            "manufacturer": "Daikin Industries, Ltd."
         }
 
     @property
