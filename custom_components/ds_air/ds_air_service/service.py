@@ -5,7 +5,7 @@ import typing
 from threading import Thread, Lock
 
 from .ctrl_enum import EnumDevice, EnumControl
-from .dao import Room, AirCon, AirConStatus, Ventilation, VentilationStatus, get_device_by_aircon, Sensor, STATUS_ATTR
+from .dao import Room, AirCon, AirConStatus, Ventilation, VentilationStatus, get_device_by_aircon, Sensor, STATUS_ATTR, get_device_by_vent
 from .decoder import decoder, BaseResult
 from .display import display
 from .param import Param, HandShakeParam, HeartbeatParam, AirConControlParam, AirConQueryStatusParam, Sensor2InfoParam, VentilationQueryStatusParam, VentilationControlParam
@@ -146,9 +146,9 @@ class Service:
     _ventilations = None # type: typing.List[Ventilation]
     _ready = False  # type: bool
     _none_stat_dev_cnt = 0  # type: int
-    _status_hook = []  # type: typing.List[(AirCon, typing.Callable)]
-    _sensor_hook = []  # type: typing.List[(str, typing.Callable)]
-    _vent_hook = [] # type: typing.List[(Ventilation, typing.Callable)]
+    _status_hook = []  # type: typing.List[typing.Tuple[AirCon, typing.Callable]]
+    _sensor_hook = []  # type: typing.List[typing.Tuple[str, typing.Callable]]
+    _vent_hook = [] # type: typing.List[typing.Tuple[Ventilation, typing.Callable]]
     _heartbeat_thread = None
     _sensors = []  # type: typing.List[Sensor]
     _scan_interval = 5  # type: int
@@ -225,13 +225,8 @@ class Service:
         Service.send_msg(p)
 
     @staticmethod
-    def control_vent(aircon: Ventilation, switch: bool):
-        statusVent = VentilationStatus()
-        if switch == True:
-            statusVent.switch = EnumControl.Switch(1)
-        else:
-            statusVent.switch = EnumControl.Switch(0)
-        p = VentilationControlParam(Service._ventilations[0], statusVent)
+    def control_vent(ventilation: Ventilation, status: VentilationStatus):
+        p = VentilationControlParam(ventilation, status)
         Service.send_msg(p)
 
     @staticmethod
@@ -342,7 +337,7 @@ class Service:
             Service.send_msg(p)
         for v in Service._ventilations:
             p = VentilationQueryStatusParam()
-            p.target = EnumDevice.VENTILATION
+            p.target = get_device_by_vent(v)
             p.device = v
             Service.send_msg(p)
         p = Sensor2InfoParam()

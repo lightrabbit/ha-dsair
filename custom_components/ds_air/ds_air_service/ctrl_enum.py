@@ -148,7 +148,7 @@ class EnumCmdType(IntEnum):
     HCHO_SET_INFO = 151
     HCHO_GET_SENSORS = 152
     SYS_ADDRESS_ALLOCATION = 218
-    SMALL_VAM_QUERY_AIR_QUALITY = 52
+    SMALL_VAM_QUERY_COMPOSITE_SITUATION = 52
     SMALL_VAM_LINKAGE_CONTROL = 53
     SMALL_VAM_LINKAGE_STATUS = 54
     HUMIDIFIER_GET_ALL_DEVICES = 4
@@ -236,6 +236,7 @@ class AirFlow(IntEnum):
 
 
 _AIR_FLOW_NAME_LIST = ['最弱', '稍弱', '中等', '稍强', '最强', '自动']
+_VENT_AIR_FLOW_NAME_LIST = ['INVALID', '静音', '中速', '高速', '暴风']
 
 
 class Breathe(IntEnum):
@@ -293,7 +294,7 @@ class Mode(IntEnum):
 
 _MODE_NAME_LIST = [HVAC_MODE_COOL, HVAC_MODE_DRY, HVAC_MODE_FAN_ONLY, HVAC_MODE_AUTO, HVAC_MODE_HEAT,
                    HVAC_MODE_DRY, HVAC_MODE_AUTO, HVAC_MODE_HEAT_COOL, HVAC_MODE_HEAT, HVAC_MODE_DRY]
-
+_MODE_VENT_NAME_LIST = ["内循环", "热交换", "自动", "防污染", "排异味"]
 
 class Switch(IntEnum):
     OFF = 0
@@ -331,6 +332,14 @@ class EnumControl:
     @staticmethod
     def get_mode_enum(name):
         return Mode(_MODE_NAME_LIST.index(name))
+    
+    @staticmethod
+    def get_vent_mode_name(idx):
+        return _MODE_VENT_NAME_LIST[idx]
+
+    @staticmethod
+    def get_vent_mode_enum(name: str):
+        return Mode(_MODE_VENT_NAME_LIST.index(name))
 
     @staticmethod
     def get_air_flow_name(idx):
@@ -339,6 +348,14 @@ class EnumControl:
     @staticmethod
     def get_air_flow_enum(name):
         return AirFlow(_AIR_FLOW_NAME_LIST.index(name))
+    
+    @staticmethod
+    def get_vent_air_flow_name(idx):
+        return _VENT_AIR_FLOW_NAME_LIST[idx]
+
+    @staticmethod
+    def get_vent_air_flow_enum(name):
+        return AirFlow(_VENT_AIR_FLOW_NAME_LIST.index(name))
 
     @staticmethod
     def get_fan_direction_name(idx):
