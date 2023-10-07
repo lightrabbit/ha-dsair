@@ -311,10 +311,10 @@ class VentilationControlParam(VentilationParam):
             li.append((1, status.switch.value))
         if status.mode is not None:
             flag = flag | EnumControl.Type.MODE
-            li.append((1, status.switch.value))
+            li.append((1, status.mode.value))
         if status.air_flow is not None:
             flag = flag | EnumControl.Type.AIR_FLOW
-            li.append((1, status.switch.value))
+            li.append((1, status.air_flow.value))
 
         s.write1(flag)
         for bit, val in li:

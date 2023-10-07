@@ -113,17 +113,18 @@ class DsVent(FanEntity):
         vent = self._device_info
         if vent.status.air_flow is None:
             return None
-        return vent.status.air_flow * self.percentage_step
+        return vent.status.air_flow.value * self.percentage_step
     
     def set_percentage(self, percentage: int) -> None:
         vent = self._device_info
         status = vent.status
         new_status = VentilationStatus()
-        air_flow = round(percentage / self.percentage_step)
+        air_flow = EnumControl.AirFlow(round(percentage / self.percentage_step))
         status.air_flow = air_flow
-        new_status.air_flow = air_flow
-        from .ds_air_service.service import Service
-        Service.control_vent(self._device_info, new_status)
+        if air_flow != EnumControl.AirFlow.SUPER_WEAK:
+            new_status.air_flow = air_flow
+            from .ds_air_service.service import Service
+            Service.control_vent(self._device_info, new_status)
 
     def set_preset_mode(self, preset_mode: str) -> None:
         vent = self._device_info
