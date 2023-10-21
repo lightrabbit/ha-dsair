@@ -61,8 +61,10 @@ class DsVent(FanEntity):
         self._name = vent.alias
         self._device_info = vent
         self._unique_id = vent.unique_id
-        self._attr_speed_count = 4
-        from .ds_air_service.service import Service
+        if vent.is_small_vam:
+            self._attr_speed_count = 4
+        else:
+            self._attr_speed_count = 2
         Service.register_vent_hook(vent, self._status_change_hook)
 
     def _status_change_hook(self, **kwargs):
@@ -104,9 +106,8 @@ class DsVent(FanEntity):
     @property
     def supported_features(self) -> int:
         """Flag supported features."""
-        if self._device_info.is_small_vam:
-            return SMALL_VAM_SUPPORT
-        return 0
+        return SMALL_VAM_SUPPORT
+
     
     @property
     def percentage(self) -> int | None:
