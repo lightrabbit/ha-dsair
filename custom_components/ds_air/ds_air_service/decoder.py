@@ -606,7 +606,7 @@ class HandShakeResult(BaseResult):
         self._time = d.read_utf(14)
 
     def do(self):
-        if Config.is_new_version:
+        if Config.is_new_version and Config.is_c611:
             p = GetRoomInfoParam(EnumCmdType.SYS_GET_ROOM_INFO_V1)
         else:
             p = GetRoomInfoParam(EnumCmdType.SYS_GET_ROOM_INFO)
