@@ -934,12 +934,15 @@ class VentilationCapabilityQueryResult(BaseResult):
                 p = VentilationQueryStatusParam()
                 p.target = self.target
                 p.device = vent
-                csp = VentilationQueryCompositeSituationParam()
-                csp.target = self.target
-                csp.device = vent
+                
                 from .service import Service
                 Service.send_msg(p)
-                Service.send_msg(csp)
+
+                if vent.is_small_vam:
+                    csp = VentilationQueryCompositeSituationParam()
+                    csp.target = self.target
+                    csp.device = vent
+                    Service.send_msg(csp)
             Service.set_ventilations(self._vents)
 
     # @property
@@ -985,6 +988,8 @@ class VentilationQueryCompositeSituationResult(BaseResult):
         self.out_door_temp = UNINITIALIZED_VALUE
         self.out_door_humidity = UNINITIALIZED_VALUE
         self.pm25 = UNINITIALIZED_VALUE
+        self.sensors: typing.List[Sensor] = []
+        self.humidifierCount: int
         
     def load_bytes(self, b):
         d = Decode(b)
@@ -1010,7 +1015,7 @@ class VentilationQueryCompositeSituationResult(BaseResult):
             statusType = d.read1()
         sensorCount = d.read1() # 关联传感器信息,
         # 因为本来就能获取到传感器信息，这里就只读取信息，不进行更多的处理
-        sensors: typing.List[Sensor] = []
+        self.sensors = []
         for i in range(0, sensorCount):
             sensor = Sensor()
             sensor.sensor_type = d.read1()
@@ -1033,13 +1038,21 @@ class VentilationQueryCompositeSituationResult(BaseResult):
                 elif statusType == 5 and statusSize == 2:
                     sensor.tvoc = d.read2()
                 elif statusType == 6 and statusSize == 1: #不知道干什么用的数据
-                    sensor.type1 = d.read2()
+                    sensor.type1 = d.read1()
                 else:
                     d.read(statusSize)
                 statusType = d.read1()
 
-            sensors.append(sensor)
-        humidifierCount = d.read1() # 可能是关联加湿组件信息，手头没有设备，无法调试
+            self.sensors.append(sensor)
+        self.humidifierCount = d.read1() # 可能是关联加湿组件信息，手头没有设备，无法调试
 
     def do(self):
+        from .service import Service
+        status = VentilationStatus(
+            in_door_temp=self.in_door_temp,
+            out_door_temp=self.out_door_temp,
+            out_door_humidity=self.out_door_humidity,
+            pm25=self.pm25,
+        )
+        Service.set_ventilation_status(self.room_id, self.unit_id, status)
         return

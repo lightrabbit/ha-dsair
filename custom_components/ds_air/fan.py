@@ -6,7 +6,7 @@ from operator import truediv
 from re import S
 from typing import Any,Optional, List
 
-from custom_components.ds_air.ds_air_service.display import display
+from .ds_air_service.display import display
 from .ds_air_service.ctrl_enum import _MODE_VENT_NAME_LIST, EnumControl
 
 from homeassistant.components.fan import FanEntity, FanEntityFeature
@@ -55,8 +55,8 @@ class DsVent(FanEntity):
 
     def __init__(self, vent: Ventilation):
         _log('create ventilation:')
-        _log(str(vent.__dict__))
-        _log(str(vent.switch))
+        _log(vent.__dict__)
+        _log(vent.status)
         """Initialize the climate device."""
         self._name = vent.alias
         self._device_info = vent
@@ -84,6 +84,9 @@ class DsVent(FanEntity):
                 status.mode = new_status.mode
             if new_status.air_flow is not None:
                 status.air_flow = new_status.air_flow
+            _log('new status')
+            _log(display(kwargs['status']))
+            _log('updated status')
             _log(display(self._device_info.status))
             
         self.schedule_update_ha_state()
@@ -118,14 +121,13 @@ class DsVent(FanEntity):
     
     def set_percentage(self, percentage: int) -> None:
         vent = self._device_info
-        status = vent.status
         new_status = VentilationStatus()
         air_flow = EnumControl.AirFlow(round(percentage / self.percentage_step))
-        status.air_flow = air_flow
+        vent.status.air_flow = air_flow
         if air_flow != EnumControl.AirFlow.SUPER_WEAK:
             new_status.air_flow = air_flow
-            from .ds_air_service.service import Service
             Service.control_vent(self._device_info, new_status)
+            self.schedule_update_ha_state()
 
     def set_preset_mode(self, preset_mode: str) -> None:
         vent = self._device_info
@@ -134,7 +136,6 @@ class DsVent(FanEntity):
         mode = EnumControl.get_vent_mode_enum(preset_mode)
         status.mode = mode
         new_status.mode = mode
-        from .ds_air_service.service import Service
         Service.control_vent(self._device_info, new_status)
     
     @property
@@ -170,14 +171,12 @@ class DsVent(FanEntity):
         status.switch = EnumControl.Switch.ON
         new_status.switch = EnumControl.Switch.ON
 
-        from .ds_air_service.service import Service
         Service.control_vent(self._device_info, new_status)
         # self._switch = True
         self.schedule_update_ha_state()
 
     def turn_off(self, **kwargs: Any) -> None:
         """Turn the fan off."""
-        from .ds_air_service.service import Service
         vent = self._device_info
         status = vent.status
         new_status = VentilationStatus()

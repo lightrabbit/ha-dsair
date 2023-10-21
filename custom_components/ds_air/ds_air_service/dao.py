@@ -98,10 +98,18 @@ class VentilationStatus:
     def __init__(self, 
                  switch: EnumControl.Switch = None,
                  mode: EnumControl.Mode = None,
-                 air_flow: EnumControl.AirFlow = None):
-        self.switch = switch  # type: EnumControl.Switch
-        self.mode = mode  # type: EnumControl.Mode
-        self.air_flow = air_flow  # type: EnumControl.AirFlow
+                 air_flow: EnumControl.AirFlow = None,
+                 in_door_temp: int = None,
+                 out_door_temp: int = None,
+                 out_door_humidity: int = None,
+                 pm25: int = None):
+        self.switch: EnumControl.Switch = switch
+        self.mode: EnumControl.Mode = mode
+        self.air_flow: EnumControl.AirFlow = air_flow
+        self.in_door_temp: int = in_door_temp
+        self.out_door_temp: int = out_door_temp
+        self.out_door_humidity: int = out_door_humidity
+        self.pm25: int = pm25
 
 
 class HD(Device):
