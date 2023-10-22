@@ -192,8 +192,6 @@ class DsVentSensor(SensorEntity):
                 self._state = str(value)
             else:
                 self._state = value / SMALL_VAM_SENSOR_TYPES.get(self._data_key)[3]
-        else:
-            self._is_available = False
 
         if not not_update:
             self.schedule_update_ha_state()
