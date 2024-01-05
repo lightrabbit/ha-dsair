@@ -130,6 +130,13 @@ class Decode:
         self._pos = pos
         return s
 
+    def read_int16(self):
+        pos = self._pos
+        s = struct.unpack('<h', self._b[pos:pos + 2])[0]
+        pos += 2
+        self._pos = pos
+        return s
+
     def read4(self):
         pos = self._pos
         s = struct.unpack('<I', self._b[pos:pos + 4])[0]
@@ -1003,9 +1010,9 @@ class VentilationQueryCompositeSituationResult(BaseResult):
         while statusType != 0:
             statusSize = d.read1()
             if statusType == 2 and statusSize == 2: # 室内温度
-                self.in_door_temp = d.read2()
+                self.in_door_temp = d.read_int16()
             elif statusType == 5 and statusSize == 2: # 室外温度
-                self.out_door_temp = d.read2()
+                self.out_door_temp = d.read_int16()
             elif statusType == 6 and statusSize == 2: # 室外湿度
                 self.out_door_humidity = d.read2()
             elif statusType == 7 and statusSize == 2: # 可能是PM2.5？需要后续观测
